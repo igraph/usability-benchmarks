@@ -1,0 +1,1 @@
+This directory contains solutions using [igraph's R interface](https://igraph.org/r/).

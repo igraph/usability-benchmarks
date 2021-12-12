@@ -1,0 +1,1 @@
+This directory contains solutions using [igraph's Python interface](https://igraph.org/python/).

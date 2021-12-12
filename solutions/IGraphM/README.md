@@ -1,0 +1,1 @@
+This directory contains solutions using [IGraph/M](http://szhorvat.net/mathematica/IGraphM), which also serves as igraph's Mathematica interface.
