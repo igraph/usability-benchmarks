@@ -1,3 +1,6 @@
+
+Since not all libraries have all functionality necessary for each task, prerequisites are noted whenever they may not be obvious.
+
 # Basic tasks and algorithms
 
 ## Vertex attributes
@@ -41,6 +44,8 @@ Suggested parameters: `n=20`, `m=60`.
 
 ## Block-cut tree
 
+**Prerequisite:** Functionality for biconnected components.
+
 Compute the block-cut tree of a graph, and visualize it. The tree should be stored as a graph object. It should have a vertex attribute which stores the cut vertex names, or the blocks (as vertex sets). When visualizing the tree, use this attribute for labelling the vertices.
 
 
@@ -65,6 +70,8 @@ Write a function that computes [the Strahler stream order](https://en.wikipedia.
 # Network analysis
 
 ## Clique percolation
+
+**Prerequisite:** Clique finder.
 
 The clique percolation method can identify overlapping communities. It proceeds like this:
 
@@ -115,11 +122,20 @@ Suggested parameters: `n=200`, `k=3`.
 Highlight (visualize) the minimum and maximum spanning trees in the karate club network using edge betweenness as the edge weights.
 
 
+## Clustering tree
+
+**Prerequisite:** Any hierarchical clustering method.
+
+Construct a rooted directed tree representing the hierarchical clustering obtained from a community detection method of your choice. The output should be a standard graph object.
+
+
 # Graph theory
 
 ## Vertex cover
 
-Find a single minimum vertex cover of a graph.
+**Prerequisite:** Clique finder.
+
+Find a single minimum vertex cover of a graph based on cliques. Do not use any built-in vertex cover function.
 
 Implementation hints: Every minimum vertex cover is a complement of a maximum independent vertex set. An independent vertex set is a clique in the complement graph.
 
@@ -132,6 +148,8 @@ Generate 1000 random graphs with 5 vertices and 5 edges. Remove isomorphic dupli
 # Visualization
 
 ## Community visualization
+
+**Prerequisite:** Any community finding algorithm.
 
  1. Identify communities in the Zachary karate club network.
  2. Visualize the communities in whichever way is simplest.
@@ -154,6 +172,8 @@ This tasks tests that:
 
 
 ## Visualize cliques
+
+**Prerequisite:** Clique finder.
 
  1. Identify all 4-cliques in the Zachary karate club network. There are 11 in total.
  2. Create a figure with 11 subplots, each showing one clique highlighted in the graph in whatever way.
@@ -198,6 +218,8 @@ This is to test the flexibility of the visualization API.
 
 
 ## Implement hierarchical edge bundling
+
+**Prerequisite:** Any method for hierarchical clustering of vertices.
 
 The basic idea of hierarchical edge bundling is:
 
