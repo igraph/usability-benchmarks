@@ -6,13 +6,17 @@ These exercises will be solved using various graph libraries in various programm
 
 We welcome the developers of other network analysis libraries to join the project, and use the information here to improve their software. Contributions of new benchmark tasks, as well as solutions to the existing tasks are very welcome.
 
+## The tasks
+
+See the tasks descriptions [here](tasks/tasks.md).
+
 ## How to contribute?
 
-### Proposing new benchmark tasks
+#### Proposing new benchmark tasks
 
 Please open a new issue and describe the task.
 
-### Contributing solutions
+#### Contributing solutions
 
 Please open a new draft PR. Each solution should go into its own subdirectory, within the directory of the graph library with which it is implemented.
 
