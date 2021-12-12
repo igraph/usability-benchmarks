@@ -6,9 +6,21 @@ These exercises will be solved using various graph libraries in various programm
 
 We welcome the developers of other network analysis libraries to join the project, and use the information here to improve their software. Contributions of new benchmark tasks, as well as solutions to the existing tasks are very welcome.
 
-----
+## How to contribute?
 
-**GitHub issues for igraph's high-level interfaces:**
+### Proposing new benchmark tasks
+
+Please open a new issue and describe the task.
+
+### Contributing solutions
+
+Please open a new draft PR. Each solution should go into its own subdirectory, within the directory of the graph library with which it is implemented.
+
+## Graph libraries
+
+Feel free to contribute solutions using any graph library in any high-level programming language, even if the library is not yet mentioned in this section.
+
+#### GitHub issues for igraph's high-level interfaces
 
  - [ ] R: https://github.com/igraph/rigraph/issues/497
  - [ ] Python: https://github.com/igraph/python-igraph/issues/469
