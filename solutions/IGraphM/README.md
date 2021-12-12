@@ -1,1 +1,3 @@
 This directory contains solutions using [IGraph/M](http://szhorvat.net/mathematica/IGraphM), which also serves as igraph's Mathematica interface.
+
+Note that since IGraph/M uses Mathematica's built-in graph data structure, and aims to deeply integrate with Mathematica's built-in functionality, solutions will necesssarily use both base Mathematica functions and IGraph/M functions. It is impossible to benchmark the usability of IGraph/M separately from the rest of Mathematica.

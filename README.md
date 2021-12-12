@@ -28,4 +28,4 @@ Feel free to contribute solutions using any graph library in any high-level prog
 
  - [ ] R: https://github.com/igraph/rigraph/issues/497
  - [ ] Python: https://github.com/igraph/python-igraph/issues/469
- - [ ] Mathematica: TODO
+ - [ ] Mathematica: https://github.com/szhorvat/IGraphM/issues/111
