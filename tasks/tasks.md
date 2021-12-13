@@ -217,6 +217,14 @@ This is to test the flexibility of the visualization API.
  4. Plot a simple food web so that the vertices are images of the plants and animals. Choose your food web so that it is acyclic, and use the Sugiyama layout. Example: https://www.azolifesciences.com/article/Threats-in-the-Food-Chain.aspx
 
 
+## Multiple labelling
+
+Create a small graph, and visualize it, labelling each vertex such that:
+
+ - Its name is shown below or above it
+ - Its excentricity, a number, is shown inside of the vertex shape
+
+
 ## Implement hierarchical edge bundling
 
 **Prerequisite:** Any method for hierarchical clustering of vertices.
