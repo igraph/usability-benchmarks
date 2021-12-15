@@ -1,4 +1,5 @@
 import igraph as ig
+import itertools
 import matplotlib.pyplot as plt
 
 EXAMPLE_K = 3
@@ -23,46 +24,30 @@ def k_communities(g, k, min_common_vertices):
         raise ValueError("Error: min_common_vertices=%d must be greater than k=%d" % (min_common_vertices, k))
 
     # Each clique can be identified by it's index in 'cliques'
-    cliques = [set(x) for x in k_cliques(g, k)]
+    cliques = list(map(set, k_cliques(g, k)))
     num_cliques = len(cliques)
     # Graph storing each clique as a vertex
     clique_graph = ig.Graph()
     clique_graph.add_vertices(num_cliques)
-    cg_edges = []
-    # List of communities as a list of list of clique indices
-    clique_communities = []
     # List of communities as a list of list of set of vertices
     communities = []
 
     # Get connected cliques
-    for c1 in range(num_cliques):
-        for c2 in range(c1, num_cliques):
-            # If the two cliques share at least min_common_vertices,
-            # they are part of the same community
-            if c1 != c2 and len(cliques[c1].intersection(cliques[c2])) >= min_common_vertices:
-                cg_edges.append((c1, c2))
-    
+    # If the two cliques share at least min_common_vertices,
+    # they are part of the same community
+    cg_edges = [(c1, c2) for c1, c2 in itertools.combinations(range(num_cliques), 2) if len(cliques[c1].intersection(cliques[c2])) >= min_common_vertices]
+
     # Add edges for clique graph
     clique_graph.add_edges(cg_edges)
 
     # Merge cliques accordingly into communities
-    to_merge = list(range(num_cliques))
-    while (len(to_merge) > 0):
-        # Get first unmerged vertex
-        idx = to_merge[0]
-        # Get all connected vertices
-        vertices = clique_graph.subcomponent(idx, mode="all")
-        # Remove all connected vertices
-        for v in vertices:
-            to_merge.remove(v)
-        clique_communities.append(vertices)
+    cg_clusters = clique_graph.clusters()
 
     # Generate the list of clique communities as a list of set of vertices
-    for cc in clique_communities:
+    for g in cg_clusters:
         vertices = set()
-        for c in cc:
-            clique = cliques[c]
-            vertices.update(clique)
+        for c in g:
+            vertices.update(cliques[c])
         communities.append(vertices)
 
     return communities
