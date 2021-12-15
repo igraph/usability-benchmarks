@@ -1,23 +1,10 @@
-from igraph import Graph
+import igraph as ig
+import matplotlib.pyplot as plt
 
 EXAMPLE_K = 3
 
 def k_cliques(g, k):
     """Returns a list of all cliques of size k in Graph g. Each clique is given as a set of vertex ids in g.
-    """
-    """
-    edges = g.get_edgelist()
-    cliques = [{i, j} for i, j in edges if i != j]
-    for c in range(2, k):
-        cliques_n = set()
-        for i, j in itertools.combinations(cliques, 2):
-            x = i ^ j
-            if len(x) == 2 and (tuple(x) in edges or tuple(x)[::-1] in edges):
-                cliques_n.add(tuple(i | j))
-            
-        cliques = list(map(set, cliques_n))
-    
-    return cliques
     """
     return g.cliques(k, k)
 
@@ -39,7 +26,7 @@ def k_communities(g, k, min_common_vertices):
     cliques = [set(x) for x in k_cliques(g, k)]
     num_cliques = len(cliques)
     # Graph storing each clique as a vertex
-    clique_graph = Graph()
+    clique_graph = ig.Graph()
     clique_graph.add_vertices(num_cliques)
     cg_edges = []
     # List of communities as a list of list of clique indices
@@ -83,11 +70,19 @@ def k_communities(g, k, min_common_vertices):
 if __name__ == "__main__":
     # Load in Zachary's karate club network
     print("For the Zachary Karate Club graph\n")
-    g = Graph.Famous("Zachary")
+    g = ig.Graph.Famous("Zachary")
 
     # Calculate cliques and communities
+    communities = k_communities(g, EXAMPLE_K, EXAMPLE_K-1)
     print("Cliques of size k=%d" % EXAMPLE_K)
     print(k_cliques(g, EXAMPLE_K))
     print("")
     print("Communities from cliques of size k=%d, with %d shared vertices" % (EXAMPLE_K, EXAMPLE_K-1))
-    print(k_communities(g, EXAMPLE_K, EXAMPLE_K-1))
+    print(communities)
+    
+    # plot the graph with a vertex cover for each community
+    fig, ax = plt.subplots()
+    ig.plot(ig.VertexCover(g, communities), mark_groups=True, palette=ig.RainbowPalette(n=3), edge_width=0.5, target=ax)
+    plt.axis('off')
+    plt.show()
+    
