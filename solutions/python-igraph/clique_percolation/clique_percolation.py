@@ -4,19 +4,15 @@ import matplotlib.pyplot as plt
 
 EXAMPLE_K = 3
 
-def k_communities(g, k, min_common_vertices):
+def clique_percolation(g, k, min_common_vertices):
     """
-    Given a graph and size k, return a list of communities found through clique
-    percolation with at least min_common_vertices shared.
+    Given a graph g and clique size k, return a list of communities found
+    through clique percolation with at least min_common_vertices shared.
     A community is the connected component of cliques where two cliques overlap
-    in at least k-1 vertices.
-    Each community is a set of vertices in that community
-
-    Approach: generate a new clique graph where each k-clique is a vertex, and 
-    connect vertices if the cliques share min_common_vertices
+    in at least min_common_vertices vertices.
     """
     if (min_common_vertices > k):
-        raise ValueError("Error: min_common_vertices=%d must be greater than k=%d" % (min_common_vertices, k))
+        raise ValueError(f"Error: min_common_vertices={min_common_vertices} must be greater than k={k}")
 
     # Cliques of size k in graph g
     k_cliques = g.cliques(k, k)
@@ -24,8 +20,6 @@ def k_communities(g, k, min_common_vertices):
     # Each clique can be identified by it's index in 'cliques'
     cliques = [set(clique) for clique in k_cliques]
     num_cliques = len(cliques)
-    # List of communities as a list of list of set of vertices
-    communities = []
 
     # Get connected cliques
     # If the two cliques share at least min_common_vertices,
@@ -39,6 +33,8 @@ def k_communities(g, k, min_common_vertices):
     cg_clusters = clique_graph.clusters()
 
     # Generate the list of clique communities as a list of set of vertices
+    communities = []
+
     for g in cg_clusters:
         vertices = set()
         for c in g:
@@ -52,8 +48,8 @@ print("For the Zachary Karate Club graph\n")
 g = ig.Graph.Famous("Zachary")
 
 # Calculate cliques and communities
-communities = k_communities(g, EXAMPLE_K, EXAMPLE_K-1)
-print("Communities from cliques of size k=%d, with %d shared vertices" % (EXAMPLE_K, EXAMPLE_K-1))
+communities = clique_percolation(g, EXAMPLE_K, EXAMPLE_K-1)
+print(f"Communities from cliques of size k={EXAMPLE_K}, with {EXAMPLE_K-1} shared vertices")
 print(communities)
 
 # Plot the graph with a vertex cover for each community
