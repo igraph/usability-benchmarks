@@ -1,7 +1,7 @@
 
 Since not all libraries have all functionality necessary for each task, prerequisites are noted whenever they may not be obvious.
 
-# Basic tasks and algorithms
+# Basic tasks
 
 ## Vertex attributes
 
@@ -54,6 +54,26 @@ Compute the block-cut tree of a graph, and visualize it. The tree should be stor
 Create a new graph `g2` based on an existing one `g` so that two neighbours of a vertex `v` in `g` will be connected in `g2` precisely when they are not connected in `g`.
 
 
+## Vertex name handling in disjoint union
+
+Create the following two graphs, with the given vertex names:
+
+```
+a-b-c-d-b
+```
+
+```
+e-f-d-e
+```
+
+Produce their disjoint union, then add a single edge between vertex `d` from the first graph and vertex `d` from the second graph. This task checks if it is easy to find out which vertex in the disjoint union correspondods to which vertex in the original graphs.
+
+
+# Algorithms
+
+For the following tasks, do not use built-in implementations of these algortihms. Instead, implement them from scratch.
+
+
 ## Orient a tree
 
 Write a function that:
@@ -65,6 +85,13 @@ Write a function that:
 ## Strahler stream order
 
 Write a function that computes [the Strahler stream order](https://en.wikipedia.org/wiki/Strahler_number) of each node in a directed out-tree. The function should verify that the input is valid (i.e. it is a directed tree where all edges point away from the root).
+
+
+## Random walk
+
+ - Write a function that performs a random walk on a weighted graph. It starts from a given vertex, and chooses to follow one of its outgoing edges with probability proportional to the weight of the edge. Self-loops and multi-edges should be supported. The function should work on both undirected and directed graphs. In undirected graphs, either end of a self-loop would be followed with equal probability. In other words, if starting from vertex `1` in the graph with edges `1-1, 1-2` (with uniform edge weights), we move to vertex `2` with probability 1/3 and stay in vertex `1` with probability 2/3.
+
+ - There should be two variants of the function: one that returns the sequence of traversed vertices, and another that returns the sequence of traversed edges. A single function that returns both at the same time is also acceptable.
 
 
 # Network analysis
