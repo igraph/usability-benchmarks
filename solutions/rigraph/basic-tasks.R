@@ -5,6 +5,10 @@
                                         # My comments marked with # ...
 
 library(igraph)
+library(magrittr)
+
+                                        # Set random seed for reproducibility
+set.seed(42)
 
 ### Vertex Attributes ###
 
@@ -13,14 +17,14 @@ library(igraph)
                                         # 20 nodes and a density of 0.25
 g <- sample_gnp(n = 20, p = .25)
                                         # Choose an arbitrary node
-selectnode <- 1
+node <- 1
                                         # The igraph function distances takes the graph, `g`, and the
-                                        # chosen vertex, `selectnode`, and outputs the distance to
+                                        # chosen vertex, `node`, and outputs the distance to
                                         # all other nodes `V(g)`. That output can be stored directly
                                         # as a vertex attribute.
-V(g)$d <- distances(g, v = V(g)[selectnode], to = V(g))
+V(g)$d <- distances(g, v = node)
                                         # To show that it worked:
-plot(g, vertex.color = V(g)$d)
+plot(g, vertex.color = V(g)$d + 1)
 V(g)$d
 
 ### Connected Components ###
@@ -33,9 +37,8 @@ V(g)$d
                                         # Generate a simple network that is easy to visualize.
 n1 <- 5
 n2 <- 5
-g <- sample_gnm(n1, n1, TRUE) %>% set_vertex_attr("label", value = 1:n1)
-h <- sample_gnm(n2, n2, TRUE) %>% set_vertex_attr("label", value = (n1+1):(n1+n2))
-G <- g + h
+G <- sample_gnm(n1, n2, directed=TRUE) + sample_gnm(n2, n2, directed=TRUE)
+V(G)$label <- 1:(n1+n2)
 plot(G)
 
                                         # This is an implementation of depth first search.
@@ -49,7 +52,6 @@ plot(G)
                                         # There is one change from the textbook algorithm to support
                                         # this particular task, marked below. 
 dfs_visit <- function(g, u) {
-    require(igraph)
                                         # The recursive part
     g$time <- g$time + 1
     V(g)$d[u] <- g$time
@@ -70,7 +72,6 @@ dfs_visit <- function(g, u) {
 }
 
 depth_first_search <- function(g) {
-    require(igraph)
     V(g)$color <- "white"
     V(g)$p <- numeric(length(V(g))) # predecessor
     V(g)$d <- numeric(length(V(g))) # discovery time
@@ -95,7 +96,6 @@ depth_first_search <- function(g) {
 }
 
 weakly_connected_components <- function(G) {
-    require(igraph)
                                         # Connected components in an undirected graph correspond to
                                         # weakly connected components in a directed graph.
     g <- as.undirected(G, mode = "collapse")
@@ -115,18 +115,14 @@ weakly_connected_components(G)
 
 ## Write a function that computes how many edges are incident to each vertex. In undirected graphs with self-loops, this is not the same as the degree. An isolated vertex with a self-loop has one incident edge, but it has degree 2.
 count_incident_edges <- function(g) {
-    require(igraph)
-                                        # Get all edges in a matrix format
-    es <- ends(g, es = E(g))
-                                        # And the vertex labels
-    vs <- V(g)
-                                        # Count the number of edges connected to a node
-                                        # This function works by checking, for each vertex,
-                                        # how many rows in `es` have at least one instance of vertex
-                                        # label `v`.
-    edge_count <- sapply(vs, function(v) sum(apply(es, 1, function(e) v %in% e)))
-    names(edge_count) <- vs
-    return(edge_count)
+                                        # Get the adjacency list of the graph, then pipe it...
+    as_adj_list(g) %>%
+                                        # ...to a function that count the number of unique neighbors for each vertex, then...
+    lapply(. %>% unique %>% length) %>%
+                                        # ...convert the result into a vector, then...
+    unlist %>%
+                                        # ...for extra points, add the vertex names (if any)
+    set_names(V(g)$name)
 }
 
 ## Create a random graph with n vertices and m edges, allowing self-loops. Demonstrate the function on it. n=6, m=12 produces a small example that is easy to check visually.
@@ -141,7 +137,6 @@ count_incident_edges(g)
 
 ## Write a function to compute the mean degree of the kth order neighbourhood of each vertex, excluding the degree of the vertex itself. Write this function from scratch.
 mean_neighbor_degree <- function(g, v, k) {
-    require(igraph)
                                         # The neighborhood function allows you to specify an order,
                                         # which neighbors does not, but includes the node `v`
     nbs <- neighborhood(g, order = k, nodes = v, mode = "all")[[1]]
@@ -219,7 +214,6 @@ sample_random_multigraph <- function(n, m,
                                      req.parallel = TRUE,
                                      req.self.parallel = TRUE,
                                      max.iter = 10) {
-    require(igraph)
                                         # This function calls `random_multigraph` until it produces a
                                         # graph meeting the requirements specified in the arguments.
     if(req.parallel | req.self.parallel) {
@@ -388,8 +382,14 @@ g2 <- graph_from_literal(e-f, f-d, d-e)
 G <- disjoint_union(g1, g2)
 
 ## then add a single edge between vertex d from the first graph and vertex d from the second graph. This task checks if it is easy to find out which vertex in the disjoint union corresponds to which vertex in the original graphs.
+                    
+                                        # in some sense the next line is cheating because it assumes
+                                        # that there are exactly two vertices with "d" as the name
 idx <- which(V(G)$name == "d")
-G2 <- add_edges(G, c(V(G)[idx[1]], V(G)[idx[2]]))
+G2 <- G + edge(idx)
+                                        # an alternative solution is to use combn() to extract all
+                                        # pairs of vertices with name == "d"
+G3 <- G + edge(combn(idx, 2))
 
 par(mfrow = c(1, 2))
 coords <- layout_nicely(G)
