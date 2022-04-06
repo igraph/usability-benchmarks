@@ -20,6 +20,10 @@ Please open a new issue and describe the task.
 
 Please open a new draft PR. Each solution should go into its own subdirectory, within the directory of the graph library with which it is implemented.
 
+#### Improving existing solutions
+
+Providing alternative solutions, or improving existing solutions by making them more idiomatic, easier to read, or faster, is also very welcome.
+
 ## Graph libraries
 
 Feel free to contribute solutions using any graph library in any high-level programming language, even if the library is not yet mentioned in this section.
