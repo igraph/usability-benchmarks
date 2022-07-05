@@ -144,7 +144,7 @@ mean_neighbor_degree <- function(g, v, k) {
     nbs <- nbs[which(nbs != v)]
                                         # Once we have the order of neighbors we want, we can collect
                                         # the degree for those nodes
-    nbs_k <- sapply(nbs, function(n) degree(g, n))
+    nbs_k <- degree(g, nbs)
                                         # and return the mean
     return(mean(nbs_k))
 }
@@ -183,22 +183,9 @@ random_multigraph <- function(n, m, directed = TRUE) {#, req.parallel = TRUE, ma
                                         # multigraph with a specified number of nodes and edges.
 
                                         # A vector for nodes
-    nodes <- seq(1, n)
-                                        # and a storage list for edges.
-    edges <- vector("list", m)
-                                        # For each expected edge, 
-    for(i in 1:m) {
-                                        # choose a node at random 
-        u <- sample(nodes, 1)
-                                        # and another 
-        v <- sample(nodes, 1)
-                                        # make an edge
-        edge <- c(u, v)
-                                        # and add that edge to our storage list.
-        edges[[i]] <- edge
-    }
-                                        # Collapse the list into a vector
-    edges <- do.call(c, edges)
+    nodes <- 1:n
+                                        # a storage array for edges
+    edges <- matrix(sample(nodes, 2*m, replace = T), ncol = 2)
                                         # and make the graph.
     g <- graph(edges)
                                         # Make undirected if desired.
@@ -283,29 +270,27 @@ E(h)$edge_count
 g <- random_multigraph(n = 20, m = 60, directed = FALSE)
 
 ## 2. Identify vertex pairs between which there is more than one edge.
-                                        # Using the same strategy with duplicated rows in an array
-el <- as_edgelist(g)
-dupls <- el[duplicated(el), ]
-                                        # but putting duplicate node pairs in a list.
-dupls <- lapply(1:nrow(dupls), function(i) dupls[i, ])
+dupls <- ends(g, E(g)[which_multiple(g)])
+dupls
 
 ## 3. Create a list of edge-groups corresponding to the above. In igraph, edges should be identified based on their index, thus the output is a list of edge index lists.
-                                        # Applying a function to the list of node pairs,
-edge_groups <- lapply(dupls, function(pair) {
-                                        # Get all edges for each node separately
-    edges <- incident_edges(graph = g, v = pair)
-                                        # Multi edges between those nodes show up in both values
-                                        # of the incident_edges() output list.
-    multi <- edges[[1]][which(edges[[1]] %in% edges[[2]])]
-                                        # Return those edges.
-    multi
-})
+find_edge_groups <- function(g, nodepair) {#, ends_list
+    edgesTF <- apply(ends(g, E(g)), 1, function(row) setequal(nodepair, row))
+    which(edgesTF == TRUE)
+}
+
+dupls_list <- lapply(1:nrow(dupls), function(i) dupls[i, ])
+edge_groups <- lapply(dupls_list, function(pair) find_edge_groups(g, pair))
+edge_groups
+                                        # Checking
+                                        # not sure why `lapply(edge_groups, function(x) E(g)[x])`
+                                        # doesn't work
+for(x in edge_groups) print(E(g)[x])
 
 ## 4. Simplify the multi-edges, but keep self-loops. The resulting graph should have edge weights which are equal to the edge multiplicity in the original graph.
                                         # We can use the function written above
 h <- simplify_mod(g)
                                         # and check to make sure it's correct.
-edge_groups
 E(h)[which(E(h)$edge_count > 1)]
 E(h)[which(E(h)$edge_count > 1)]$edge_count
 
@@ -357,16 +342,54 @@ plot(h, vertex.label = V(h)$comp, layout = coords2)
 ### Local complement ###
 
 ## Create a new graph g2 based on an existing one g so that two neighbours of a vertex v in g will be connected in g2 precisely when they are not connected in g.
-                                        # Make a graph
-g <- sample_gnm(5, 6)
-                                        # in a circle, so connections are easy to see.
-coords <- layout_in_circle(g)
-                                        # There is already an igraph function for this task.
-g2 <- complementer(g)
+                                        # Choose a simple graph, and point to a function for
+                                        # generating named/standard graphs
+g <- make_graph("House")
+                                        # Pick a node to make visualization easier
+v <- 3
+                                        # Gather neighbors
+nbs <- neighbors(g, v)
+                                        # What edges could there be?
+possible <- t(combn(nbs, 2))
+                                        # What edges are there now?
+current <- apply(ends(g, E(g)), 1, function(row) all(row %in% nbs))
+                                        # Get `current` as a matrix in the same form as `possible`
+current_m <- ends(g, E(g)[current])
+                                        # This trick isn't intuitive to me, but returns the rows of
+                                        # `possible` that aren't in `current_m`
+                                        # https://stackoverflow.com/questions/10907359/r-remove-rows-from-one-data-frame-that-are-in-another
+new <- rbind(possible, current_m)
+new <- new[!duplicated(new) & !duplicated(new, fromLast = TRUE), ]
+                                        # Remove the current edges that connect v's neighbors, if any
+if(nrow(current_m) > 0) g2 <- delete_edges(g, E(g)[current]) else g2 <- g
+                                        # and add the new edges
+g2 <- add_edges(g2, t(new))
 
+                                        # check with a plot
+                                        # mark with color...
+g1_vcolors <- ifelse(V(g) == v, 1,
+              ifelse(V(g) %in% nbs, 2, 3)
+              )
+g1_ecolors <- ifelse(current, "red", "black")
+g1_ewidths <- ifelse(g1_ecolors == "red", 2, 1)
+g2_vcolors <- ifelse(V(g2) == as.numeric(v), 1,
+              ifelse(V(g2) %in% as.numeric(nbs), 2, 3)
+              )
+g2_ecolors <- ifelse(apply(ends(g2, E(g2)), 1, function(row) all(row %in% as.numeric(nbs))),
+                     "blue", "black")
+g2_ewidths <- ifelse(g2_ecolors == "blue", 2, 1)
+coords <- layout_nicely(g)
+                                        # and plot both graphs
+dev.new(height = 7, width = 14)
 par(mfrow = c(1, 2))
-plot(g, layout = coords)
-plot(g2, layout = coords)
+plot(g, layout = coords,
+     vertex.color = g1_vcolors, edge.color = g1_ecolors,
+     edge.width = g1_ewidths,
+     main = "Original")
+plot(g2, layout = coords,
+     vertex.color = g2_vcolors, edge.color = g2_ecolors,
+     edge.width = g2_ewidths,
+     main = "Local Complement")
 
 ### Vertex name handling in disjoint union ###
 
