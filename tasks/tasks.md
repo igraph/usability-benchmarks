@@ -51,7 +51,7 @@ Compute the block-cut tree of a graph, and visualize it. The tree should be stor
 
 ## Local complement
 
-Create a new graph `g2` based on an existing one `g` so that two neighbours of a vertex `v` in `g` will be connected in `g2` precisely when they are not connected in `g`.
+Create a new graph `g2` based on an existing one `g` so that two neighbours of a vertex `v` in `g` will be connected in `g2` precisely when they are not connected in `g`. The input to this function will be a graph `g` and a single vertex `v`, whose local neighbourhood will be complemented.
 
 
 ## Vertex name handling in disjoint union
