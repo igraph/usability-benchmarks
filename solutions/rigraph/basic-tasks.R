@@ -341,29 +341,37 @@ plot(h, vertex.label = V(h)$comp, layout = coords2)
 
 ### Local complement ###
 
-## Create a new graph g2 based on an existing one g so that two neighbours of a vertex v in g will be connected in g2 precisely when they are not connected in g.
+## Create a new graph g2 based on an existing one g so that two neighbours of a vertex v in g will be connected in g2 precisely when they are not connected in g. The input to this function will be a graph g and a single vertex v, whose local neighbourhood will be complemented.
+
+make_local_complement <- function(g, v) {
+                                        # Gather neighbors
+    nbs <- neighbors(g, v)
+                                        # What edges could there be?
+    possible <- t(combn(nbs, 2))
+                                        # What edges are there now?
+    current <- apply(ends(g, E(g)), 1, function(row) all(row %in% nbs))
+                                        # Get `current` as a matrix in the same form as `possible`
+    current_m <- ends(g, E(g)[current])
+                                        # This trick isn't intuitive to me, but returns the rows of
+                                        # `possible` that aren't in `current_m`
+                                        # https://stackoverflow.com/questions/10907359/r-remove-rows-from-one-data-frame-that-are-in-another
+    new <- rbind(possible, current_m)
+    new <- new[!duplicated(new) & !duplicated(new, fromLast = TRUE), ]
+                                        # Remove the current edges that connect v's neighbors, if any
+    if(nrow(current_m) > 0) g2 <- delete_edges(g, E(g)[current]) else g2 <- g
+                                        # and add the new edges
+    g2 <- add_edges(g2, t(new))
+                                        # and return
+    return(g2)
+}
+
                                         # Choose a simple graph, and point to a function for
                                         # generating named/standard graphs
 g <- make_graph("House")
                                         # Pick a node to make visualization easier
 v <- 3
-                                        # Gather neighbors
-nbs <- neighbors(g, v)
-                                        # What edges could there be?
-possible <- t(combn(nbs, 2))
-                                        # What edges are there now?
-current <- apply(ends(g, E(g)), 1, function(row) all(row %in% nbs))
-                                        # Get `current` as a matrix in the same form as `possible`
-current_m <- ends(g, E(g)[current])
-                                        # This trick isn't intuitive to me, but returns the rows of
-                                        # `possible` that aren't in `current_m`
-                                        # https://stackoverflow.com/questions/10907359/r-remove-rows-from-one-data-frame-that-are-in-another
-new <- rbind(possible, current_m)
-new <- new[!duplicated(new) & !duplicated(new, fromLast = TRUE), ]
-                                        # Remove the current edges that connect v's neighbors, if any
-if(nrow(current_m) > 0) g2 <- delete_edges(g, E(g)[current]) else g2 <- g
-                                        # and add the new edges
-g2 <- add_edges(g2, t(new))
+
+g2 <- make_local_complement(g, v)
 
                                         # check with a plot
                                         # mark with color...
